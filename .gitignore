@@ -1,0 +1,14 @@
+Adventure Jam/Temp/
+Adventure Jam/Library/
+Adventure Jam/Obj/
+Adventure Jam/ExportedObj/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd

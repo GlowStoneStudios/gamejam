@@ -21,6 +21,11 @@ public class PlayerController : MonoBehaviour
 	Rigidbody rB;
     float aX, aY;
     bool jumpKey, runKey;
+    public bool Grounded;
+    public string GroundTag;
+    public float jumpDelay = 0.5f;
+    float curJumpTime = 0f;
+    bool jumped;
 
     [Header("Rol")]
     public float Health = 100f;
@@ -37,23 +42,33 @@ public class PlayerController : MonoBehaviour
 		aX = Input.GetAxisRaw ("Horizontal");
         aY = Input.GetAxisRaw ("Vertical");
 
+        //Ground Checker-------------------------------------------------------------------
+
+        RaycastHit hit;
+        if (Physics.Raycast(cached.position, Vector3.down, out hit, 0.15f))
+        {
+            Grounded = true;
+            GroundTag = hit.transform.tag;
+        }
+        else
+        {
+            Grounded = false;
+            GroundTag = " ";
+        }
+
+        Debug.DrawRay(cached.position,Vector3.down * 0.15f,Color.green);
+
+        //--------------------------------------------------------------------------------------
+
         MovementCore();
     }
 
 	/* Metodos de la clase */
-	void DoJump () {
-		if (PlayerGroundChecker.instance.onGround) {
-			rB.AddForce (Vector3.up * JumpForce, ForceMode.Force);
-			playerState = playerCurState.Jump;
-		} else {
-			return;
-		}
-	}
 
     void MovementCore () {
         if (canMove) {
 
-            jumpKey = Input.GetKey(KeyCode.Space);
+            jumpKey = Input.GetKeyDown(KeyCode.Space);
             runKey = Input.GetKey(KeyCode.LeftShift);
 
             //Logica de movimiento forward y backward
@@ -101,9 +116,22 @@ public class PlayerController : MonoBehaviour
             }
 
 			// Salto
-			if (jumpKey) {
-				DoJump ();
+            if (jumpKey && Grounded && !jumped) 
+            {
+                jumped = true;
+                rB.AddForce(Vector3.up * JumpForce);
 			}
+
+            if (jumped)
+            {
+                curJumpTime += Time.deltaTime;
+                if (curJumpTime > jumpDelay)
+                {
+                    jumped = false;
+                    curJumpTime = 0f;
+                }
+            }
+
         }
     }
 }
